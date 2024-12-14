@@ -32,7 +32,8 @@ class FetchNewsArticlesNewsAPI extends Command
     {
         try {
 
-            $newsApi = new NewsApi(getenv('NEWSAPI_KEY'));
+            $newsApi = new NewsApi(config('services.newsapi.api_key'));
+            dd($newsApi->successful());
             $source = 'NewsAPI';
             $articles = $newsApi->getTopHeadLines(null, null, 'us', null, 10, 1);
 
@@ -42,8 +43,8 @@ class FetchNewsArticlesNewsAPI extends Command
             }
 
             $existingTitles = Article::selectRaw("JSON_UNQUOTE(details->'$.title') as title")
-            ->pluck('title')
-            ->toArray();
+                ->pluck('title')
+                ->toArray();
 
             foreach ($articles->articles as $article) {
                 if (in_array($article->title, $existingTitles)) {
