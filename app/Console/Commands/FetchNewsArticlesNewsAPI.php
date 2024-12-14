@@ -3,7 +3,6 @@
 namespace App\Console\Commands;
 
 use App\Models\Article;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
 use jcobhams\NewsApi\NewsApi;
 
@@ -16,7 +15,7 @@ class FetchNewsArticlesNewsAPI extends Command
      *
      * @var string
      */
-    protected $signature = 'app:fetch-news-articles-news-api';
+    protected $signature = 'app:fetch-news-articles-news-api {category?} {--limit=10} {--page=1}';
 
     /**
      * The console command description.
@@ -33,13 +32,15 @@ class FetchNewsArticlesNewsAPI extends Command
         try {
 
             $newsApi = new NewsApi(config('services.newsapi.api_key'));
-            dd($newsApi->successful());
             $source = 'NewsAPI';
-            $articles = $newsApi->getTopHeadLines(null, null, 'us', null, 10, 1);
+            $category = $this->argument('category') ?? 'general';
+            $limit = (int)$this->option('limit');
+            $page = (int)$this->option('page');
+            $articles = $newsApi->getTopHeadLines(null, null, 'us', $category, $limit, $page);
 
             if (empty($articles->articles)) {
                 $this->info("No news articles found from $source.");
-                return;
+                return Command::SUCCESS;
             }
 
             $existingTitles = Article::selectRaw("JSON_UNQUOTE(details->'$.title') as title")
@@ -52,7 +53,10 @@ class FetchNewsArticlesNewsAPI extends Command
                 }
 
                 Article::create([
-                    'source' => $source,
+                    'source' => $article->source->name,
+                    'date_published' => $article->publishedAt,
+                    'category' => ucwords($category),
+                    'api_source' => $source,
                     'details' => json_decode(json_encode($article), true)
                 ]);
             }
@@ -61,5 +65,7 @@ class FetchNewsArticlesNewsAPI extends Command
         } catch (\Exception $e) {
             $this->error("Unable to fetch articles: " . $e->getMessage());
         }
+
+        return Command::SUCCESS;
     }
 }

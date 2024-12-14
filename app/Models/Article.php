@@ -13,6 +13,9 @@ class Article extends Model
      */
     protected $fillable = [
         'source',
+        'api_source',
+        'date_published',
+        'category',
         'details',
     ];
 
@@ -26,6 +29,7 @@ class Article extends Model
     {
         return [
             'details' => 'json',
+            'date_published' => 'datetime',
         ];
     }
 }
