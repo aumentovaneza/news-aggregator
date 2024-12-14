@@ -6,8 +6,6 @@ use App\Models\Article;
 use Illuminate\Console\Command;
 use jcobhams\NewsApi\NewsApi;
 
-use function PHPUnit\Framework\isNull;
-
 class FetchNewsArticlesNewsAPI extends Command
 {
     /**
@@ -36,6 +34,7 @@ class FetchNewsArticlesNewsAPI extends Command
             $category = $this->argument('category') ?? 'general';
             $limit = (int)$this->option('limit');
             $page = (int)$this->option('page');
+            
             $articles = $newsApi->getTopHeadLines(null, null, 'us', $category, $limit, $page);
 
             if (empty($articles->articles)) {

@@ -45,8 +45,9 @@ return [
     ],
 
     'nytimes' => [
-        'api_key' => env('NEWYORKTIMES_API_KEY'),
-        'secret_key' => env('NEWYORKTIMES_SECRET_KEY'),
+        'api_url' => env('NYT_API_URL'),
+        'api_key' => env('NYT_API_KEY'),
+        'secret_key' => env('NYT_SECRET_KEY'),
     ]
 
 ];
