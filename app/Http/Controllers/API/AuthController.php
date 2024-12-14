@@ -10,24 +10,44 @@ use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
-    public function generateToken(Request $request) 
+    public function generateToken(Request $request)
     {
         $request->validate([
             'email' => 'required|email',
             'password' => 'required'
         ]);
-        
-        $user = User::where('email',$request->email)->first();
 
-        if ($user || !Hash::check($request->password, $user->password)) {
+        $user = User::where('email', $request->email)->first();
+
+        if (!Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
                 'email' => ['Incorrect credentials. Please try again'],
             ]);
         }
 
-        $token = $user->createToken('news-aggregator-token')->plainTextToken;
+        $token = $user->createToken('news-aggregator')->plainTextToken;
 
-        return response()->json(['token' => $token], 200);
+        return response()->json(['message' => 'Successfully logged in!' ,'token' => $token], 200);
+    }
+
+    public function passwordReset(Request $request)
+    {
+        $request->validate([
+            'currentPassword' => 'required',
+            'newPasword' => 'requried'
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        $user->update([
+            'password' => Hash::make($request->newPassword)
+        ]);
+
+        $request->user()->tokens()->delete();
+
+        $request->user()->currentAccessToken()->delete();
+
+        return response()->json(['message' => 'Successfully updated the user password!'], 200);
     }
 
     public function logout(Request $request)
