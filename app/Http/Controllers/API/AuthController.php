@@ -34,7 +34,7 @@ class AuthController extends Controller
     {
         $request->validate([
             'currentPassword' => 'required',
-            'newPasword' => 'requried'
+            'newPasword' => 'required'
         ]);
 
         $user = User::where('email', $request->email)->first();

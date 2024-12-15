@@ -23,8 +23,6 @@ class RegisterationController extends Controller
 
         $device = substr($request->userAgent() ?? '', 0, 255);
 
-        return response()->json([
-            'access_token' => $user->createToken($device)->plainTextToken
-        ]);
+        return response()->json(['message' => 'User successfully created!', 'token' => $user->createToken($device)->plainTextToken], 201);
     }
 }
