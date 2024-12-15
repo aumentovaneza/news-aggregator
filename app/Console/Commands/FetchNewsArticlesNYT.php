@@ -42,13 +42,12 @@ class FetchNewsArticlesNYT extends Command
             $articles = $this->nytService->fetchArticles($query);
 
             if (empty($articles)) {
-                $this->warn('No articles found.');
+                $this->info("No news articles found from $source.");                
                 return Command::SUCCESS;
             }
 
-            $existingTitles = Article::selectRaw("JSON_UNQUOTE(details->'$.title') as title")
-                ->pluck('title')
-                ->toArray();
+            $existingTitles = Article::all()->keyBy('title')->toArray();
+
 
             foreach ($articles['results'] as $article) {
 
@@ -58,10 +57,17 @@ class FetchNewsArticlesNYT extends Command
 
                 Article::create([
                     'source' => 'New York Times',
+                    'title' => $article['title'],
                     'date_published' => $article['published_date'],
                     'category' => ucwords($article['section']),
                     'api_source' => $source,
-                    'details' => json_decode(json_encode($article), true)
+                    'details' => json_decode(json_encode([
+                        'subsection' => $article['subsection'],
+                        'abstract' => $article['abstract'],
+                        'url' => $article['url'],
+                        'uri' => $article['uri'],
+                        'byline' => $article['byline'],
+                    ]), true)
                 ]);
             }
 

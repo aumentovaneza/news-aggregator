@@ -43,16 +43,13 @@ class FetchNewsArticlesTheGuardian extends Command
         try {
 
             $articles = $this->guardianService->fetchArticles($query, $limit);
-
             if (empty($articles)) {
 
-                $this->warn('No articles found.');
+                $this->info("No news articles found from $source.");
                 return Command::SUCCESS;
             }
 
-            $existingTitles = Article::selectRaw("JSON_UNQUOTE(details->'$.title') as title")
-                ->pluck('title')
-                ->toArray();
+            $existingTitles = Article::all()->keyBy('title')->toArray();
 
             foreach ($articles as $article) {
                 if (in_array($article['webTitle'], $existingTitles)) {
@@ -61,10 +58,17 @@ class FetchNewsArticlesTheGuardian extends Command
 
                 Article::create([
                     'source' => 'The Guardian',
+                    'title' => $article['webTitle'],
                     'date_published' => $article['webPublicationDate'],
                     'category' => $article['sectionName'],
                     'api_source' => $source,
-                    'details' => json_decode(json_encode($article), true)
+                    'details' => json_decode(json_encode([
+                        'id' => $article['id'],
+                        'type' => $article['type'],
+                        'webUrl' => $article['webUrl'],
+                        'apiUrl' => $article['apiUrl'],
+                        'pillarName' => $article['pillarName'],
+                    ]), true)
                 ]);
             }
 

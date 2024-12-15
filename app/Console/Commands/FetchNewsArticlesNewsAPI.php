@@ -42,9 +42,7 @@ class FetchNewsArticlesNewsAPI extends Command
                 return Command::SUCCESS;
             }
 
-            $existingTitles = Article::selectRaw("JSON_UNQUOTE(details->'$.title') as title")
-                ->pluck('title')
-                ->toArray();
+            $existingTitles = Article::all()->keyBy('title')->toArray();
 
             foreach ($articles->articles as $article) {
                 if (in_array($article->title, $existingTitles)) {
@@ -53,10 +51,15 @@ class FetchNewsArticlesNewsAPI extends Command
 
                 Article::create([
                     'source' => $article->source->name,
+                    'title' => $article->title,
                     'date_published' => $article->publishedAt,
                     'category' => ucwords($category),
                     'api_source' => $source,
-                    'details' => json_decode(json_encode($article), true)
+                    'details' => json_decode(json_encode([
+                        'author' => $article->author,
+                        'description' => $article->description,
+                        'url' => $article->url
+                    ]), true)
                 ]);
             }
 

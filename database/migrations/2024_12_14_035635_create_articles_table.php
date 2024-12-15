@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('source');
             $table->string('api_source');
+            $table->string('title');
             $table->datetime('date_published');
             $table->string('category')->nullable();
             $table->json('details');

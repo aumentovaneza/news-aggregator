@@ -12,6 +12,7 @@ class Article extends Model
      * @var list<string>
      */
     protected $fillable = [
+        'title',
         'source',
         'api_source',
         'date_published',
