@@ -84,3 +84,7 @@ To run tests within the Sail container, execute:
 To run a specific test:
 
     docker exec -it <container name> vendor/bin/phpunit --filter <TestClass>
+
+### Swagger API Documentation
+
+<https://app.swaggerhub.com/apis/VANEZAAUMENTO_1/news-aggregator/1.0.0>
